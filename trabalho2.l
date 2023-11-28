@@ -4,6 +4,8 @@ int carga = 0;
 int manutencao = 0;
 char localizacao[] = "posto de carregamento";
 
+
+ 
 void imprimirEstado() {
     printf("Estado Atual:\n");
     printf("Bateria: %d\n", bateria);
@@ -35,7 +37,11 @@ void validarESinalizar() {
     }
 }
 
+
+
 %}
+
+%x ESTADO
 
 VALOR [0-2]
 
@@ -47,7 +53,16 @@ LETRA [a-zA-Z]
 
 TUDO [A-Za-z0-9]
 
-%%
+
+
+%% 
+<INITAL>ESTADO {	
+	BEGIN(ESTADO);
+}
+
+
+
+
 
 MANUTENCAO({VALOR}) { printf("Instrucao: MANUTENCAO(%s)\n", yytext); }
 
@@ -58,7 +73,14 @@ ENTREGA\({LETRA}{2}[({ALGARISMOA}|{ALGARISMOB}{ALGARISMOA}|100)],{TUDO}{5},{ALGA
  
 RECOLHE({TUDO}{5},{ALGARISMOB}{ALGARISMOA}*) { printf("Instrucao: RECOLHE(%s)\n", yytext); }
 
-ESTADO((B|M|T|(B,M)|(M,B)|(B,T)|(T,B)|(M,T)|(T,M)|(B,M,T)|(B,T,M)|(M,T,B)|(M,B,T)|(T,B,M)|(T,M,B))) { printf("Instrucao: ESTADO(%s)\n", yytext);    }
+<ESTADO>"(" { printf("\n\nESTADO:\n\nEncoutrou um parenteses aberto.\n"); }
+<ESTADO>")" { printf("\n\nESTADO:\n\nEncoutrou um parenteses fechado.\n"); BEGIN(INITIAL); }
+<ESTADO>((B|M|T|(B,M)|(M,B)|(B,T)|(T,B)|(M,T)|(T,M)|(B,M,T)|(B,T,M)|(M,T,B)|(M,B,T)|(T,B,M)|(T,M,B))) { imprimirEstado();    }
+<ESTADO>. { printf("Caracter nao reconhecido: %s\n", yytext);}
+
+
+
+
 
 %%
 
